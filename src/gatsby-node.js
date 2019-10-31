@@ -42,7 +42,7 @@ const createOrGetIndex = async (
   cache,
   getNode,
   server,
-  { fields, resolvers }
+  { fields, resolvers, languages }
 ) => {
   const cacheKey = `${node.id}:index`
   const cached = await cache.get(cacheKey)
@@ -51,6 +51,14 @@ const createOrGetIndex = async (
   }
 
   const index = elasticlunr()
+
+  if (languages) {
+    Object.keys(languages).forEach(key => {
+      languages[key](elasticlunr)
+      index.use(elasticlunr[key])
+    })
+  }
+  
   index.setRef(`id`)
   fields.forEach(field => index.addField(field))
 
